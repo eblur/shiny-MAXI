@@ -20,9 +20,10 @@ class MaxiData(object):
         self.hard  = data[:,7] # 10-20 keV
         self.yunit = 'flux (phot/cm$^2$/s)'
         self.calibrated = False
+        self.twoten = np.zeros_like(self.mjd)
 
     def plot(self, ax, band='total', **kwargs):
-        assert band in ['total','soft','med','hard']
+        assert band in ['total','soft','med','hard', '2-10']
         ax.set_xlabel('MJD')
         if band == 'total':
             ax.scatter(self.mjd, self.total, **kwargs)
@@ -36,7 +37,12 @@ class MaxiData(object):
         if band == 'hard':
             ax.scatter(self.mjd, self.hard, **kwargs)
             ax.set_ylabel('10-20 keV {}'.format(self.yunit))
-
+        if band == '2-10':
+            ax.scatter(self.mjd, self.twoten, **kwargs)
+            ax.set_ylabel('10-20 keV {}'.format(self.yunit))
+            print("Mean 2-10 keV flux: {:.4f}".format(np.mean(self.twoten)))
+            print("Stdev 2-10 keV flux: {:.4f}".format(np.std(self.twoten)))
+            
     def calibrate(self, cal_file, thresh=CAL_THRESH):
         cal_data = MaxiData(cal_file)
 
@@ -49,18 +55,24 @@ class MaxiData(object):
             cal_total = self.total / np.interp(self.mjd, cal_data.mjd[ii], cal_data.total[ii])
 
             ii = id_outliers(cal_data.soft)
-            cal_soft = self.total / np.interp(self.mjd, cal_data.mjd[ii], cal_data.soft[ii])
+            cal_soft = self.soft / np.interp(self.mjd, cal_data.mjd[ii], cal_data.soft[ii])
 
             ii = id_outliers(cal_data.med)
-            cal_med = self.total / np.interp(self.mjd, cal_data.mjd[ii], cal_data.med[ii])
+            cal_med = self.med / np.interp(self.mjd, cal_data.mjd[ii], cal_data.med[ii])
 
             ii = id_outliers(cal_data.hard)
-            cal_hard = self.total / np.interp(self.mjd, cal_data.mjd[ii], cal_data.hard[ii])
+            cal_hard = self.hard / np.interp(self.mjd, cal_data.mjd[ii], cal_data.hard[ii])
+
+            data_twoten = self.soft + self.med
+            cal_data_twoten = cal_data.soft + cal_data.med
+            ii = id_outliers(cal_data_twoten)
+            cal_twoten = data_twoten / np.interp(self.mjd, cal_data.mjd[ii], cal_data_twoten[ii])
 
             self.total = cal_total
             self.soft  = cal_soft
             self.med   = cal_med
             self.hard  = cal_hard
+            self.twoten = cal_twoten
             self.calibrated = True
             self.yunit = 'flux (Crab)'
         else:
