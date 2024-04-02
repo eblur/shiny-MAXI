@@ -20,7 +20,12 @@ MAXI_LABELS = {'gx339':'J1702-487',
                'LMCX1':'J0539-697',
                '_1ES33':'J0035+598',
                'Mrk421':'J1104+382',
-               'cygX2':'J2144+383'}
+               'cygX2':'J2144+383',
+               'gx340':'J1645-456',
+               'gx5m1':'J1801-250',
+               'h1743':'J1746-322',
+               'grs1915':'J1915+109',
+               '_4u1705':'J1708-441'}
 
 def scrape_maxi_lightcurve(label, outfile):
     maxi_http = requests.get(f"http://maxi.riken.jp/star_data/{label}/{label}_g_lc_1day_all.dat")
@@ -44,7 +49,9 @@ app_ui = ui.page_fluid(
             ui.input_select("target", "Target Name",
                                    dict(gx339="GX 339-4", cygX1="Cyg X-1", cygX3="Cyg X-3", _3C273="3C 273",
                                         PKS2155="PKS 2155-304", _4U614="4U 0614+091", LMCX1="LMC X-1",
-                                        _1ES33="1ES 0033+595", Mrk421="Mrk 421", cygX2='Cyg X-2')),
+                                        _1ES33="1ES 0033+595", Mrk421="Mrk 421", cygX2='Cyg X-2',
+                                        gx340="GX 340+0", gx5m1="GX 5-1", h1743='H1743-322', grs1915='GRS 1915+105',
+                                        _4u1705="4U 1705-44")),
             #ui.input_radio_buttons("band", "Energy Band",
             #                       dict(total="2-20 keV", soft="2-4 keV", med="4-10 keV", hard="10-20 keV"))
             ui.input_slider("mjd_range", "MJD",
